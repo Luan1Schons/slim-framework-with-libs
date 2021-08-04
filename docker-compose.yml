@@ -1,0 +1,41 @@
+version: "3"
+services:
+  php:
+    build: .docker
+    image: apache-php
+    container_name: apache-php
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - php-data:/var/www/html
+    links:
+      - mysql
+    networks:
+      - mynetwork
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - .db/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    networks:
+      - mynetwork
+
+volumes:
+  php-data:
+    driver: lebokus/bindfs:latest
+    driver_opts:
+      sourcePath: "${PWD}"
+      map: "${UID}/0:@${UID}/@0"
+
+networks:
+  mynetwork:
+    driver: bridge
